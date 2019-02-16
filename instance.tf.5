@@ -1,0 +1,20 @@
+data "aws_ip_ranges" "us-east" {
+  regions  = ["eu-west-1"]
+  services = ["ec2"]
+}
+
+resource "aws_security_group" "from_us_east" {
+  name = "from_us_east"
+
+  ingress {
+    from_port   = "443"
+    to_port     = "443"
+    protocol    = "tcp"
+    cidr_blocks = ["${data.aws_ip_ranges.us-east.cidr_blocks}"]
+  }
+
+  tags {
+    CreateDate = "${data.aws_ip_ranges.us-east.create_date}"
+    SyncToken  = "${data.aws_ip_ranges.us-east.sync_token}"
+  }
+}

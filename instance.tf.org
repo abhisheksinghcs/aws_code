@@ -1,0 +1,39 @@
+resource "aws_key_pair" "myec2key" {
+  key_name   = "myec2key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDmwFKJbaC2SrvaV88fa1/F85f9hdCR2Iq2+Y4J3tOyS3r7wA9TUqjGoKkq45pqwt/bWWcMt5khBFdFYx2uU4U+CiOs9hAbzsDBsKprBdJz1EPnV56qT26uy8JsDufWJli+yrkKQs85gSeAq9Ihbd+7X+ow7SNE7OztfL08lPC3KjcYypF5NFXcJJHK/qWKE6sa+KIyiH2lQuNWRE2tS1VG6vAS34sGNKOt1w1H7mj2uEqNYerumF3WUTRIck0TF3ok1Ih8uEHdNMH8xMtLxFUrdEa638/PGm1uddEfDTU7uz2iTd0XPPyX3ck8wqNlnqmogmNeYgACo1fXO56tKvXb vagrant@ubuntu-xenial"
+}
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "SSH for admin"
+
+  ingress {
+    from_port   = 0
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "exampleEC2" {
+  ami           = "${lookup(var.AMI, var.AWS_REGION)}"
+  instance_type = "t2.micro"
+  key_name      = "${aws_key_pair.myec2key.key_name}"
+
+  provisioner "file" {
+    source      = "script.sh"
+    destination = "/tmp/script.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "sudo /tmp/script.sh",
+    ]
+  }
+
+  connection {
+    user        = "${var.INSTANCE_USERNAME}"
+    private_key = "${file("${var.PATH_TO_PRIVATE_KEY}")}"
+  }
+}
