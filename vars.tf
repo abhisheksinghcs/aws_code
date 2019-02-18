@@ -1,3 +1,12 @@
+
+variable "AMIs" {
+	type = "map"
+	default = {
+	us-east-1 = "ami-0d729a60"
+	}
+
+}
+
 variable "PATH_TO_PRIVATE_KEY" {
   default = "mykey"
 }
