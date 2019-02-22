@@ -17,9 +17,10 @@ resource "aws_autoscaling_group" "sample_autoscaling_group" {
   launch_configuration = "${aws_launch_configuration.sample_launch_configuration.name}"
   vpc_zone_identifier  = ["${aws_subnet.main_vpc_subnet_1.id}", "${aws_subnet.main_vpc_subnet_2.id}"]
 
-  max_size                  = 2
+  max_size                  = 4
   min_size                  = 1
-  health_check_type         = "EC2"
+  health_check_type         = "ELB"
   health_check_grace_period = 300
-  force_delete              = "true"
+  force_delete              = true
+  load_balancers            = ["${aws_elb.sample_elb.id}"]
 }
