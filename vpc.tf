@@ -14,7 +14,7 @@ resource "aws_vpc" "main_vpc" {
   enable_classiclink   = "false"
 
   tags {
-    name = "public-vpc"
+    Name = "public-vpc"
   }
 }
 
@@ -29,7 +29,7 @@ resource "aws_subnet" "public_subnet_1" {
   map_public_ip_on_launch = "true"
 
   tags {
-    name = "main-vpc-public-subnet-1"
+    Name = "main-vpc-public-subnet-1"
   }
 }
 
@@ -40,7 +40,7 @@ resource "aws_subnet" "public_subnet_2" {
   map_public_ip_on_launch = "true"
 
   tags {
-    name = "main-vpc-public-subnet-2"
+    Name = "main-vpc-public-subnet-2"
   }
 }
 
@@ -52,7 +52,7 @@ resource "aws_subnet" "private_subnet_1" {
   availability_zone = "us-east-1c"
 
   tags {
-    name = "main-vpc-private-subnet-1"
+    Name = "main-vpc-private-subnet-1"
   }
 }
 
@@ -62,7 +62,7 @@ resource "aws_subnet" "private_subnet_2" {
   availability_zone = "us-east-1d"
 
   tags {
-    name = "main-vpc-private-subnet-2"
+    Name = "main-vpc-private-subnet-2"
   }
 }
 
@@ -72,7 +72,7 @@ resource "aws_internet_gateway" "main_vpc_internet_gateway" {
   vpc_id = "${aws_vpc.main_vpc.id}"
 
   tags = {
-    name = "main-vpc-internet-gateway"
+    Name = "main-vpc-internet-gateway"
   }
 }
 
@@ -82,7 +82,7 @@ resource "aws_route_table" "main_vpc_route_table" {
   vpc_id = "${aws_vpc.main_vpc.id}"
 
   tags {
-    name = "main-vpc-route-table"
+    Name = "main-vpc-route-table"
   }
 }
 
@@ -125,7 +125,7 @@ resource "aws_security_group" "allow_ssh" {
   }
 
   tags {
-    name = "allow-ssh-sg"
+    Name = "allow-ssh-sg"
   }
 }
 
@@ -142,6 +142,6 @@ resource "aws_security_group" "allow_http" {
   }
 
   tags {
-    name = "allow-http-inbound"
+    Name = "allow-http-inbound"
   }
 }
