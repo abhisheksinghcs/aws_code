@@ -30,12 +30,18 @@ resource "aws_key_pair" "my_key" {
   public_key = "${file("${var.PATH_TO_PUBLIC_KEY}")}"
 }
 
+resource "aws_iam_instance_profile" "web_profile" {
+  name = "web_profile"
+  role = "${aws_iam_role.logging_role.name}"
+}
+
 resource "aws_launch_configuration" "web_launch_config" {
-  name              = "web_launch_config"
-  image_id          = "${data.aws_ami.ubuntu.id}"
-  instance_type     = "t2.micro"
-  key_name          = "${aws_key_pair.my_key.key_name}"
-  placement_tenancy = "default"
+  name                 = "web_launch_config"
+  image_id             = "${data.aws_ami.ubuntu.id}"
+  instance_type        = "t2.micro"
+  key_name             = "${aws_key_pair.my_key.key_name}"
+  placement_tenancy    = "default"
+  iam_instance_profile = "${aws_iam_instance_profile.web_profile.name}"
 
   lifecycle {
     create_before_destroy = "true"
