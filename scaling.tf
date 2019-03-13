@@ -30,18 +30,12 @@ resource "aws_key_pair" "my_key" {
   public_key = "${file("${var.PATH_TO_PUBLIC_KEY}")}"
 }
 
-resource "aws_iam_instance_profile" "web_profile" {
-  name = "web_profile"
-  role = "${aws_iam_role.logging_role.name}"
-}
-
 resource "aws_launch_configuration" "web_launch_config" {
-  name                 = "web_launch_config"
-  image_id             = "${data.aws_ami.ubuntu.id}"
-  instance_type        = "t2.micro"
-  key_name             = "${aws_key_pair.my_key.key_name}"
-  placement_tenancy    = "default"
-  iam_instance_profile = "${aws_iam_instance_profile.web_profile.name}"
+  name              = "web_launch_config"
+  image_id          = "${data.aws_ami.ubuntu.id}"
+  instance_type     = "t2.micro"
+  key_name          = "${aws_key_pair.my_key.key_name}"
+  placement_tenancy = "default"
 
   lifecycle {
     create_before_destroy = "true"
@@ -70,4 +64,38 @@ resource "aws_autoscaling_policy" "web_scaling_policy" {
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
   autoscaling_group_name = "${aws_autoscaling_group.web_scaling_group.name}"
+}
+
+# Section 2. Define a classic load balancer
+
+resource "aws_elb" "web_elb" {
+  name    = "web-elb"
+  subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
+
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTP:80/"
+    interval            = 30
+  }
+
+  cross_zone_load_balancing   = "true"
+  idle_timeout                = 60
+  connection_draining         = "true"
+  connection_draining_timeout = 300
+}
+
+# 2.B attach ELB to auto scaling group
+
+resource "aws_autoscaling_attachment" "attach_web_elb" {
+  autoscaling_group_name = "${aws_autoscaling_group.web_scaling_group.name}"
+  elb                    = "${aws_elb.web_elb.id}"
 }
